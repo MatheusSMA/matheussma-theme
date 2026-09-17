@@ -661,29 +661,25 @@ const Theme g_themeFrostyGlass = {{
 //
 // The generic pinning in dock-adaptation.cpp keeps RootGrid tall, because it is
 // an ancestor of the icons and pinning it would clip them again. But FrostyGlass
-// paints the bar *on* RootGrid, so the paint has to move down to an element that
-// is pinned, or the bar is drawn at the full window height.
+// paints the bar *on* RootGrid, so the paint has to move down onto something
+// that is pinned - otherwise the bar is drawn at the full window height.
 //
-// Only themes that define $Background, $BorderBrush, $BorderThickness and
-// $CornerRadius can use this. LiquidGlass2, for one, uses literal values and no
-// constants at all, which is why this lives in a per-theme file.
+// The paint goes on the Rectangles inside TaskbarBackground, using Fill and
+// Stroke, NOT on TaskbarBackground's own Background property. A WindhawkBlur
+// assigned to that Control's Background fails to instantiate - "Failed to create
+// proxy brush: 802B000A" - and the bar comes out empty. LiquidGlass2 paints the
+// same element this way with 28 blurs and renders correctly, which is where this
+// shape comes from.
 //
-// KNOWN BROKEN: the WindhawkBlur in $Background fails to instantiate here -
-// "Failed to create proxy brush: 802B000A" - so the bar comes out transparent.
-// The same failure also hits the theme's own untouched rule on
-// SystemTrayFrameGrid, so the cause is not this file. Under investigation.
+// FrostyGlass collapses both Rectangles because it paints on RootGrid instead,
+// so they have to be made visible again here. These rules come after the theme's
+// own and override them.
+//
+// Only themes defining $Background, $BorderBrush, $BorderThickness and
+// $CornerRadius can use this. LiquidGlass2 uses literal values and no constants
+// at all, which is why this is a per-theme file.
 
     // --- the visible bar itself ---
-    //
-    // The theme paints the bar on Grid#RootGrid. RootGrid has to stay tall,
-    // because it is an ancestor of the icons and pinning it would clip them
-    // again, so the painting moves down to TaskbarBackground#BackgroundControl,
-    // which is pinned. RootGrid keeps the room and loses the paint; the
-    // background element keeps the paint at the stock height.
-    //
-    // Editing the theme block itself would work too, but it is kept as a
-    // verbatim copy of upstream so that a future version can be diffed against
-    // it. Adaptation belongs here instead.
 
     ThemeTargetStyles{L"Taskbar.TaskbarFrame > Grid#RootGrid", {
         L"Background:=Transparent",
@@ -691,15 +687,28 @@ const Theme g_themeFrostyGlass = {{
         L"Margin=0",
         L"Padding=0",
         L"VerticalAlignment=Stretch"}},
+
     ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl", {
         L"Height=48",
         L"VerticalAlignment=Bottom",
         L"Margin=0,0,0,4",
-        L"BorderThickness=$BorderThickness",
-        L"BorderBrush:=$BorderBrush",
-        L"CornerRadius=$CornerRadius",
-        L"Background:=$Background",
         L"Padding=2,0,1.5,0"}},
+
+    ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl > Windows.UI.Xaml.Controls.Grid > Windows.UI.Xaml.Shapes.Rectangle#BackgroundFill", {
+        L"Visibility=Visible",
+        L"Fill:=$Background",
+        L"RadiusX=$CornerRadius",
+        L"RadiusY=$CornerRadius"}},
+
+    ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl > Windows.UI.Xaml.Controls.Grid > Windows.UI.Xaml.Shapes.Rectangle#BackgroundStroke", {
+        L"Visibility=Visible",
+        L"Stroke:=$BorderBrush",
+        L"StrokeThickness=$BorderThickness",
+        L"RadiusX=$CornerRadius",
+        L"RadiusY=$CornerRadius",
+        L"VerticalAlignment=Stretch",
+        L"HorizontalAlignment=Stretch",
+        L"Height=NaN"}},
 }, {
     L"Background=<WindhawkBlur BlurAmount=\"20\" TintColor=\"{ThemeResource SystemChromeDarkColor}\" TintOpacity=\"0.15\" />",
     L"BorderBrush2=<LinearGradientBrush StartPoint=\"0,0\" EndPoint=\"0,1\"><GradientStop Color=\"{ThemeResource SystemChromeHighColor}\" Offset=\"0.0\" /><GradientStop Color=\"{ThemeResource SystemChromeLowColor}\" Offset=\"0.25\" /><GradientStop Color=\"{ThemeResource SystemChromeHighColor}\" Offset=\"1\" /></LinearGradientBrush>",
