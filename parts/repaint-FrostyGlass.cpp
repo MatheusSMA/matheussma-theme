@@ -29,9 +29,16 @@
         L"Padding=0",
         L"VerticalAlignment=Stretch"}},
 
+    // Width as well as height: TaskbarBackground is the background of the whole
+    // taskbar in stock Windows, so it starts out stretched edge to edge. The
+    // theme painted RootGrid instead, which follows TaskbarFrame's Width=Auto and
+    // hugs the icons. Moving the paint down here gained the height and lost that,
+    // so it is asked for explicitly.
     ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl", {
         L"Height=48",
         L"VerticalAlignment=Bottom",
+        L"Width=Auto",
+        L"HorizontalAlignment=Center",
         L"Margin=0,0,0,4",
         L"Padding=2,0,1.5,0"}},
 

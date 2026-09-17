@@ -72,9 +72,9 @@ consumer slot.
 
 ## Notes
 
-Only the `FrostyGlass` theme is included. The other themes from the upstream
-styler are not bundled; see `scripts/add-theme.py` in the repository to pull one
-in.
+Two themes are included, `FrostyGlass` and `LiquidGlass2`. The rest of the
+upstream styler's themes are not bundled; see `scripts/add-theme.py` in the
+repository to pull one in.
 
 Taskbar height reserves screen space even where the strip above the bar is
 transparent, so maximized windows stop below the top of the window rather than
@@ -125,12 +125,16 @@ the top of the visible bar.
     Use "Key@Dark=Value" or "Key@Light=Value" to define theme-aware resources
     that can be referenced with {ThemeResource Key} in styles.
 
-- clickThroughTaskbar: false
+- clickThroughTaskbar: true
   $name: Style - click-through taskbar
   $description: >-
     Make the empty parts of the taskbar click-through. Only the area with the
-    taskbar buttons and the system tray stays clickable. Useful when the
-    transparent strip above the bar catches clicks.
+    taskbar buttons and the system tray stays clickable.
+
+    On by default here, unlike upstream: this mod always makes the window taller
+    than the visible bar, so there is always a transparent strip above it. With
+    this off, that strip swallows clicks and hover meant for whatever is behind
+    it.
 
 - xamlDiagnosticsHandling: alert
   $name: Style - XAML diagnostics consumer handling

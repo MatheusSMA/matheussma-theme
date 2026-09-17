@@ -37,8 +37,8 @@ re-measures on the next frame. The per-frame hash is gone.
 
 ## Differences from upstream
 
-- **One theme.** Only `FrostyGlass` is included. The other 48 themes bundled with
-  the upstream styler are omitted — around 10,000 lines that are never loaded.
+- **Two themes.** `FrostyGlass` and `LiquidGlass2`. The other 47 themes bundled
+  with the upstream styler are omitted — around 10,000 lines that are never loaded.
   Pristine upstream sources are kept in `upstream/` if you want to port another
   theme in.
 - **Defaults changed.** `theme` defaults to `FrostyGlass` and `MaxScale` defaults
