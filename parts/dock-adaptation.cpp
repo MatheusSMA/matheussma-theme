@@ -35,3 +35,14 @@
     ThemeTargetStyles{L"SystemTray.SystemTrayFrame", {
         L"Height=48",
         L"VerticalAlignment=Bottom"}},
+
+    // --- the bar's own background ---
+    //
+    // Whatever a theme paints the visible bar on, it hangs off this control, so
+    // it has to be pinned like everything else visible. Left stretched, the bar
+    // is drawn at the full window height and the icons sit in a huge empty area.
+    // Only the paint itself is theme-specific; being pinned is not.
+
+    ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl", {
+        L"Height=48",
+        L"VerticalAlignment=Bottom"}},

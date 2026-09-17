@@ -651,35 +651,38 @@ const Theme g_themeFrostyGlass = {{
     ThemeTargetStyles{L"SystemTray.SystemTrayFrame", {
         L"Height=48",
         L"VerticalAlignment=Bottom"}},
+
+    // --- the bar's own background ---
+    //
+    // Whatever a theme paints the visible bar on, it hangs off this control, so
+    // it has to be pinned like everything else visible. Left stretched, the bar
+    // is drawn at the full window height and the icons sit in a huge empty area.
+    // Only the paint itself is theme-specific; being pinned is not.
+
+    ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl", {
+        L"Height=48",
+        L"VerticalAlignment=Bottom"}},
 // Theme-specific: moves where FrostyGlass paints the visible bar.
 //
-// The generic pinning in dock-adaptation.cpp keeps RootGrid tall, because it is
-// an ancestor of the icons and pinning it would clip them again. But FrostyGlass
-// paints the bar *on* RootGrid, so the paint has to move down onto something
-// that is pinned - otherwise the bar is drawn at the full window height.
+// The generic pinning keeps RootGrid tall, because it is an ancestor of the
+// icons and pinning it would clip them again. But FrostyGlass paints the bar
+// *on* RootGrid, so the paint has to move down onto something pinned - otherwise
+// the bar is drawn at the full window height.
 //
-// The paint goes on the Rectangles inside TaskbarBackground, using Fill and
-// Stroke, NOT on TaskbarBackground's own Background property. A WindhawkBlur
-// assigned to that Control's Background fails to instantiate - "Failed to create
-// proxy brush: 802B000A" - and the bar comes out empty. LiquidGlass2 paints the
-// same element this way with 28 blurs and renders correctly, which is where this
-// shape comes from.
-//
-// FrostyGlass collapses both Rectangles because it paints on RootGrid instead,
-// so they have to be made visible again here. These rules come after the theme's
-// own and override them.
+// It moves onto the Grid inside TaskbarBackground, carrying the theme's own
+// property set across unchanged. Grid to Grid matters: the same $Background
+// assigned to a Rectangle's Fill instead comes out a different colour than the
+// tray, which is a Grid and is painted by the theme directly. Assigning it to
+// TaskbarBackground's own Background does not work at all - a WindhawkBlur there
+// fails to instantiate, "Failed to create proxy brush: 802B000A".
 //
 // Only themes defining $Background, $BorderBrush, $BorderThickness and
-// $CornerRadius can use this. LiquidGlass2 uses literal values and no constants
-// at all, which is why this is a per-theme file.
+// $CornerRadius can use this. LiquidGlass2 uses literal values and no constants,
+// which is why this is a per-theme file.
 
-    // --- the visible bar itself ---
-
-    // Width=Auto and Center go here, not on the background element below.
-    // TaskbarBackground contains only Rectangles, which have no intrinsic width,
-    // so asking it to size to its content collapses it to zero and nothing is
-    // painted at all. RootGrid hugs the icons and the background stretches inside
-    // it - which is how LiquidGlass2 does it, and that theme renders correctly.
+    // Width and centring belong here, not on the background element: that
+    // control holds only Rectangles, which have no intrinsic width, so sizing it
+    // to its content collapses it to zero and nothing is painted at all.
     ThemeTargetStyles{L"Taskbar.TaskbarFrame > Grid#RootGrid", {
         L"Background:=Transparent",
         L"BorderThickness=0",
@@ -689,27 +692,14 @@ const Theme g_themeFrostyGlass = {{
         L"HorizontalAlignment=Center",
         L"VerticalAlignment=Stretch"}},
 
-    ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl", {
-        L"Height=48",
-        L"VerticalAlignment=Bottom",
+    // The theme's RootGrid rule, verbatim, one level down.
+    ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl > Windows.UI.Xaml.Controls.Grid", {
         L"Margin=0,0,0,4",
+        L"BorderThickness=$BorderThickness",
+        L"BorderBrush:=$BorderBrush",
+        L"CornerRadius=$CornerRadius",
+        L"Background:=$Background",
         L"Padding=2,0,1.5,0"}},
-
-    ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl > Windows.UI.Xaml.Controls.Grid > Windows.UI.Xaml.Shapes.Rectangle#BackgroundFill", {
-        L"Visibility=Visible",
-        L"Fill:=$Background",
-        L"RadiusX=$CornerRadius",
-        L"RadiusY=$CornerRadius"}},
-
-    ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl > Windows.UI.Xaml.Controls.Grid > Windows.UI.Xaml.Shapes.Rectangle#BackgroundStroke", {
-        L"Visibility=Visible",
-        L"Stroke:=$BorderBrush",
-        L"StrokeThickness=$BorderThickness",
-        L"RadiusX=$CornerRadius",
-        L"RadiusY=$CornerRadius",
-        L"VerticalAlignment=Stretch",
-        L"HorizontalAlignment=Stretch",
-        L"Height=NaN"}},
 }, {
     L"Background=<WindhawkBlur BlurAmount=\"20\" TintColor=\"{ThemeResource SystemChromeDarkColor}\" TintOpacity=\"0.15\" />",
     L"BorderBrush2=<LinearGradientBrush StartPoint=\"0,0\" EndPoint=\"0,1\"><GradientStop Color=\"{ThemeResource SystemChromeHighColor}\" Offset=\"0.0\" /><GradientStop Color=\"{ThemeResource SystemChromeLowColor}\" Offset=\"0.25\" /><GradientStop Color=\"{ThemeResource SystemChromeHighColor}\" Offset=\"1\" /></LinearGradientBrush>",
@@ -1155,6 +1145,17 @@ const Theme g_themeLiquidGlass2 = {{
     // --- the system tray, so the clock and the wifi icon keep their size ---
 
     ThemeTargetStyles{L"SystemTray.SystemTrayFrame", {
+        L"Height=48",
+        L"VerticalAlignment=Bottom"}},
+
+    // --- the bar's own background ---
+    //
+    // Whatever a theme paints the visible bar on, it hangs off this control, so
+    // it has to be pinned like everything else visible. Left stretched, the bar
+    // is drawn at the full window height and the icons sit in a huge empty area.
+    // Only the paint itself is theme-specific; being pinned is not.
+
+    ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl", {
         L"Height=48",
         L"VerticalAlignment=Bottom"}},
 }};
