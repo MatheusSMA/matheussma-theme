@@ -31,3 +31,22 @@
     ThemeTargetStyles{L"Taskbar.TaskbarFrame > Grid#RootGrid > Taskbar.TaskbarBackground > Grid > Rectangle#BackgroundStroke", {
         L"RadiusX=24",
         L"RadiusY=24"}},
+
+// The tray's own glass, matched to the bar.
+//
+// FrostyGlass paints the tray with its $Background - blur 20 over a theme colour
+// at 0.15 opacity - which is a much milkier frost than the bar, so the two did
+// not read as the same material. These are the bar's own blur values from
+// LiquidGlass2, and a radius of 24 to match the bar's pill.
+//
+// Caveat: the bar paints through a Rectangle's Fill and the tray through a Grid's
+// Background, and those two composite differently - identical parameters came out
+// as visibly different colours earlier in this theme. If it still reads off,
+// nudge the tint here rather than assuming the numbers are wrong.
+
+    ThemeTargetStyles{L"StackPanel#SystemTrayFrameGrid, Grid#SystemTrayFrameGrid", {
+        L"Background:=<WindhawkBlur BlurAmount=\"3\" TintColor=\"#14090909\" TintSaturation=\"1.2\"/>",
+        L"CornerRadius=24"}},
+
+    ThemeTargetStyles{L"SystemTray.SystemTrayFrame", {
+        L"CornerRadius=24"}},
