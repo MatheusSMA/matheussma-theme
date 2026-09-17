@@ -683,18 +683,25 @@ const Theme g_themeFrostyGlass = {{
     // Width and centring belong here, not on the background element: that
     // control holds only Rectangles, which have no intrinsic width, so sizing it
     // to its content collapses it to zero and nothing is painted at all.
+    // The horizontal padding is room, not spacing. Width=Auto makes the frame hug
+    // the icons, which also narrows the ScrollContentPresenter's clip onto them -
+    // so when the animation shifts neighbours sideways to make way for a magnified
+    // icon, they run past the edge and get cut. The padding widens the clip; the
+    // painted background below takes a matching margin so it does not cover the
+    // extra space. Same split as the vertical fix: what gives room is not what is
+    // painted.
     ThemeTargetStyles{L"Taskbar.TaskbarFrame > Grid#RootGrid", {
         L"Background:=Transparent",
         L"BorderThickness=0",
         L"Margin=0",
-        L"Padding=0",
+        L"Padding=48,0,48,0",
         L"Width=Auto",
         L"HorizontalAlignment=Center",
         L"VerticalAlignment=Stretch"}},
 
     // The theme's RootGrid rule, verbatim, one level down.
     ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl > Windows.UI.Xaml.Controls.Grid", {
-        L"Margin=0,0,0,4",
+        L"Margin=48,0,48,4",
         L"BorderThickness=$BorderThickness",
         L"BorderBrush:=$BorderBrush",
         L"CornerRadius=$CornerRadius",
