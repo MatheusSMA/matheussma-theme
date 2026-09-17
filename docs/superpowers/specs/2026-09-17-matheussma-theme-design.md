@@ -239,32 +239,52 @@ matheussma-theme/
 ├─ LICENSE                                    GPLv3
 ├─ NOTICE.md                                  créditos e licenças de origem
 ├─ README.md                                  o que é, o que diverge do upstream
-├─ mods/matheussma-theme.wh.cpp               o mod
+├─ mods/matheussma-theme.wh.cpp               o mod, gerado
+├─ parts/
+│  ├─ header.cpp                              metadados, readme, settings, includes
+│  ├─ dock-adaptation.cpp                     as regras de estilo da correção
+│  └─ glue.cpp                                hook do clipping e entry points
 ├─ upstream/
 │  ├─ windows-11-taskbar-styler@1.10.wh.cpp   cópia intacta
 │  └─ taskbar-dock-animation@1.9.2.wh.cpp     cópia intacta
 └─ scripts/
-   ├─ sync.ps1                                ModsSource → repo
-   └─ check-upstream.ps1                      busca versão nova e diffa contra a cópia fixada
+   ├─ build-mod.py                            monta o mod a partir de upstream/ + parts/
+   └─ add-theme.py                            troca o tema por outro do upstream
 ```
 
 `upstream/` é o que torna a atualização tratável. Quando sair a 1.11 do styler,
 o diff entre a cópia fixada e a nova mostra o que mudou no motor, sem o ruído dos
 temas que não carregamos.
 
-### Direção da sincronização
+### Desvio da decisão original
 
-**Windhawk → repositório.** O Windhawk é dono do arquivo em `ModsSource`; o
-repositório é o espelho versionado.
+O caminho aprovado foi **A**, "fusão curada em arquivo único, sem passo de
+build". O que existe é o **B**: fontes separados e um script que gera o arquivo.
 
-- Na criação, uma vez: colar o fonte no "Create new mod" do Windhawk e compilar.
-- Depois: editar pelo editor do Windhawk, e `sync.ps1` traz o arquivo para o
-  repositório.
+A razão apareceu na implementação. O A pressupunha copiar e depois editar um
+arquivo único à mão — com 11.914 linhas vindas de dois fontes, a cópia manual é
+onde entram os erros de transcrição, e cada atualização de upstream repetiria o
+trabalho inteiro. O script ancora cada recorte num trecho de texto exato e falha
+alto se o upstream mover as coisas, o que uma cópia manual não faz: ela sai
+silenciosamente errada.
 
-Essa direção foi escolhida por não depender de suposição: não está verificado se
-o Windhawk reage a escrita externa em `ModsSource`. Isso será testado durante a
-implementação; se funcionar, `sync.ps1` ganha a direção inversa e a edição passa
-a acontecer no repositório.
+O custo previsto para o B — "máquina de build pra manter" — ficou em um arquivo
+de ~300 linhas, e ele paga por si na primeira atualização do styler.
+
+### Como editar
+
+`mods/matheussma-theme.wh.cpp` é **gerado**. Editar `parts/` e rodar
+`python scripts/build-mod.py`. O arquivo gerado fica versionado mesmo assim,
+porque é ele que é colado no Windhawk, e o diff dele entre versões é o que mostra
+o que realmente mudou no mod.
+
+O compilador do próprio Windhawk valida sem passar pela interface:
+
+```
+clang++ @"C:\Program Files\Windhawk\Compiler\compile_flags.txt" \
+  -I"C:\Program Files\Windhawk\Compiler\include" \
+  -fsyntax-only mods/matheussma-theme.wh.cpp
+```
 
 ## Verificação
 

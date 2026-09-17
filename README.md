@@ -61,12 +61,40 @@ XAML diagnostics consumer slot.
 
 Windows 11 only, x86-64. The animation does not support StartAllBack.
 
+## Building
+
+`mods/matheussma-theme.wh.cpp` is generated. Edit `parts/` and run:
+
+```
+python scripts/build-mod.py
+```
+
+It assembles the mod from the pinned sources in `upstream/` plus the hand-written
+pieces in `parts/`. Every extraction is anchored to an exact line of upstream
+text, so an upstream change that moves something fails the build instead of
+silently producing a mis-spliced file.
+
+To check it without going through Windhawk's UI, use Windhawk's own compiler:
+
+```
+clang++ @"C:\Program Files\Windhawk\Compiler\compile_flags.txt" -I"C:\Program Files\Windhawk\Compiler\include" -fsyntax-only mods/matheussma-theme.wh.cpp
+```
+
+To use a different theme from the upstream styler:
+
+```
+python scripts/add-theme.py --list
+python scripts/add-theme.py DockLike
+```
+
+It warns when the new theme does not define the style constants that
+`parts/dock-adaptation.cpp` uses to repaint the taskbar background.
+
 ## Keeping up with upstream
 
 `upstream/` holds untouched copies of the exact versions this mod was built from.
-`scripts/check-upstream.ps1` fetches the current upstream source and diffs it
-against the pinned copy, so engine fixes can be found and ported without wading
-through theme changes that do not apply here.
+Diffing a new upstream release against the pinned copy shows what changed in the
+engine without the noise of theme changes that do not apply here.
 
 ## Known issues
 
