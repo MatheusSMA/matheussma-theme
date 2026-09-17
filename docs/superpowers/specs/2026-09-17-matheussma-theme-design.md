@@ -12,6 +12,10 @@ adicionado depois.
 
 O mod se chama **MatheusSMA theme**, `@id: matheussma-theme`.
 
+O primeiro objetivo concreto é corrigir o clipping dos ícones ampliados, que
+nenhum dos dois mods resolve sozinho porque a correção precisa de um hook e de
+regras de estilo agindo juntos. Ver **Correção do clipping**.
+
 ## Restrições
 
 **Um mod é um arquivo.** O wiki do Windhawk é explícito: "Windhawk mods are
@@ -153,6 +157,81 @@ estilo; o C++ fica reservado para comportamento.
 diagnostics por processo: se o styler original permanecer instalado ao lado deste
 mod, os dois disputam o mesmo slot.
 
+## Correção do clipping
+
+Este é o motivo de o mod existir. O bug é herdado do dock-animation, que o lista
+como problema aberto: ícones ampliados são cortados pela barra, e o README
+recomenda não passar de 130% de escala. A configuração em uso é 180%.
+
+### Causa raiz
+
+A janela da taskbar (`Shell_TrayWnd`) tem **48 DIP** de altura, e conteúdo XAML
+não é composto fora da janela que o hospeda. Um ícone ampliado a 180% a partir de
+uma origem na base precisa de ~86 DIP. Os 38 restantes não têm onde existir.
+
+Três tentativas de correção dentro do XAML falharam, todas pelo mesmo motivo:
+aumentar `Taskbar.TaskbarFrame`, aumentar os painéis do ícone, e abrir o `Clip` do
+`ScrollContentPresenter` mexem em elementos **dentro** de uma janela que continua
+com 48 DIP.
+
+O `Clip` de `(0, 0, largura, 48)` encontrado no `ScrollContentPresenter` é
+sintoma, não causa: ele espelha a altura da janela e acompanha qualquer mudança
+dela automaticamente.
+
+### A correção, em duas partes
+
+Nenhuma das duas funciona sozinha.
+
+**1. Espaço.** Hook em
+`TaskbarConfiguration::GetFrameSize(winrt::WindowsUdk::UI::Shell::TaskbarSize)`,
+devolvendo uma altura absoluta maior que 48. A janela cresce, o `Clip` acompanha,
+e passa a existir para onde crescer.
+
+O hook devolve valor absoluto em vez de somar ao original: a função é chamada
+várias vezes, aninhada, durante um passe de layout, e a versão aditiva se
+acumulava — 48 + 24 virou 128 em vez de 72.
+
+**2. Conter.** Sozinha, a parte 1 não resolve: `Taskbar.TaskListButton` está em
+`VerticalAlignment=Stretch` e cresce junto com o frame. Medido com a janela em
+128 DIP, o botão foi de 48 para 128 — e 128 × 1,8 estoura o clip de novo. A
+animação escala o botão, então subir a barra sobe também o que está sendo
+escalado.
+
+A solução é manter altos apenas os elementos que dão o espaço (frame, `RootGrid`,
+`ItemsRepeater`, e por consequência o clip) e prender numa faixa de 48 DIP no
+rodapé tudo que é visível:
+
+| Alvo | Estilos |
+|---|---|
+| `Taskbar.TaskListButton` | `Height=48`, `VerticalAlignment=Bottom` |
+| `Taskbar.TaskListLabeledButtonPanel#IconPanel, Grid#IconPanel` | `Height=48`, `VerticalAlignment=Bottom` |
+| `Taskbar.ExperienceToggleButton` | `Height=48`, `VerticalAlignment=Bottom` |
+| `Taskbar.TaskListButtonPanel#ExperienceToggleButtonRootPanel` | `Height=48`, `VerticalAlignment=Bottom` |
+| `Taskbar.TaskbarBackground#BackgroundControl` | `Height=48`, `VerticalAlignment=Bottom` |
+| `SystemTray.SystemTrayFrame` | `Height=48`, `VerticalAlignment=Bottom` |
+
+Resultado: botão de volta a 48 DIP no rodapé, ampliando até 86 dentro de uma
+janela de 128. A barra visível, o tray e o relógio continuam do tamanho de
+sempre — só a janela é mais alta, e a faixa acima dela é transparente.
+
+O `Image#Icon` não precisa de regra: ele é 24×24 e não acompanha o frame.
+`GetIconHeightInViewPixels`, a função que controla o tamanho do ícone, fica
+intocada.
+
+**Validado em 2026-09-17** com os três mods separados (sonda com o hook, styler
+com as seis regras, animação original) antes de qualquer código de fusão ser
+escrito.
+
+### Consequências
+
+A janela reserva altura de tela mesmo com a faixa de cima invisível: janelas
+maximizadas param acima do topo visível da barra. O styler expõe
+`clickThroughTaskbar` para o caso de a faixa transparente capturar cliques.
+
+A altura da janela e a altura da faixa presa viram configurações, em vez de
+números fixos no código. A faixa precisa acomodar `MaxScale` × altura do botão:
+a 180% com botão de 48, a janela precisa de pelo menos 86 DIP.
+
 ## Repositório
 
 ```
@@ -202,10 +281,18 @@ lista executável:
    continuar animando. Animar sem logar significa que o guard não está ativo;
    parar de animar significa que a regressão silenciosa voltou.
 5. **Desinstalar devolve os ícones ao tamanho normal**, provando que
-   `ResetAllIconScales` roda em `Wh_ModBeforeUninit`.
+   `ResetAllIconScales` roda em `Wh_ModBeforeUninit`. Inclui a altura da janela:
+   sem o mod, a barra volta aos 48 DIP.
+6. **Ampliar a 180% não corta.** O ícone sobe para fora da barra inteiro,
+   enquanto a barra visível, o tray e o relógio continuam do tamanho de sempre.
+7. **A barra visível não incha.** Medir `Shell_TrayWnd`: a janela deve estar na
+   altura configurada, e o conteúdo visível preso em 48 DIP no rodapé. Os dois
+   ao mesmo tempo — só um deles significa que uma das duas metades da correção
+   não está agindo.
 
-O item 4 é o teste que importa: é o único que exercita a regressão que o desenho
-inteiro existe para evitar.
+Os itens 4 e 6 são os que importam. O 4 exercita a regressão que a separação de
+responsabilidades entre os motores existe para evitar; o 6 é o motivo de o mod
+existir.
 
 ## Pré-condição de instalação
 
@@ -214,12 +301,6 @@ três ativos, os symbol hooks duplicam e os dois motores de estilo disputam o sl
 único de XAML diagnostics.
 
 ## Riscos conhecidos
-
-**Clipping em `MaxScale = 180`.** O README do dock-animation recomenda manter a
-escala em no máximo 130 e lista "Icons are sometimes clipped by the taskbar" como
-problema aberto. A configuração atual está em 180. Isso não é regressão
-introduzida pela fusão — é um bug herdado, e o primeiro candidato natural a
-correção agora que o código é nosso. Fora do escopo desta entrega.
 
 **Divergência do upstream.** A partir daqui, correções do m417z para novas builds
 do Windows não chegam automaticamente. É o custo aceito de ser dono do código; a

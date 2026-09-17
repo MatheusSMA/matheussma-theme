@@ -1,0 +1,110 @@
+﻿=== taskbar layout at frame height 128 ===
+(align: 0=Top 1=Center 2=Bottom 3=Stretch)
+
+--- ancestry above the frame (where the clipping lives) ---
+[00] Taskbar.TaskbarFrame  name='TaskbarFrame'  size=2293.3x128.0  align=3  Clip=none
+[01] Windows.UI.Xaml.Controls.Grid  name=''  size=2293.3x128.0  align=3  Clip=none
+[02] Windows.UI.Xaml.Controls.Border  name=''  size=2293.3x128.0  align=3  Clip=none
+[03] Windows.UI.Xaml.Controls.ScrollContentPresenter  name=''  size=2293.3x128.0  align=3  Clip=(0.0,0.0 2293.3x128.0)
+[04] Windows.UI.Xaml.Controls.ScrollViewer  name=''  size=2293.3x128.0  align=0  Clip=none
+
+--- everything under the frame (what stretched) ---
+- Taskbar.TaskbarFrame  name='TaskbarFrame'  size=2293.3x128.0  align=3  Clip=none
+  - Windows.UI.Xaml.Controls.Grid  name='RootGrid'  size=2293.3x128.0  align=3  Clip=none
+    - Taskbar.TaskbarBackground  name='BackgroundControl'  size=2293.3x48.0  align=2  Clip=none
+      - Windows.UI.Xaml.Controls.Grid  name=''  size=2293.3x48.0  align=3  Clip=none
+        - Windows.UI.Xaml.Shapes.Rectangle  name='BackgroundFill'  size=2293.3x48.0  align=3  Clip=none
+        - Windows.UI.Xaml.Shapes.Rectangle  name='BackgroundStroke'  size=2293.3x1.3  align=0  Clip=none
+    - Microsoft.UI.Xaml.Controls.ItemsRepeater  name='TaskbarFrameRepeater'  size=2293.3x128.0  align=3  Clip=none
+      - Taskbar.ExperienceToggleButton  name='LaunchListButton'  size=45.3x48.0  align=2  Clip=none
+        - Taskbar.TaskListButtonPanel  name='ExperienceToggleButtonRootPanel'  size=45.3x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=41.3x40.0  align=3  Clip=none
+          - Microsoft.UI.Xaml.Controls.AnimatedVisualPlayer  name='Icon'  size=24.0x24.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=0.0x0.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=0.0x0.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=0.0x0.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='RunningIndicator'  size=6.0x3.3  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=0.0x0.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='RunningIndicator'  size=6.0x3.3  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=0.0x0.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='RunningIndicator'  size=16.0x3.3  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=24.0x24.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='RunningIndicator'  size=6.0x3.3  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=24.0x24.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='RunningIndicator'  size=6.0x3.3  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=24.0x24.0  align=1  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='OverlayIcon'  size=16.0x16.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='RunningIndicator'  size=6.0x3.3  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=24.0x24.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='RunningIndicator'  size=6.0x3.3  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=24.0x24.0  align=1  Clip=none
+          - Taskbar.Badge  name='BadgeControl'  size=20.7x16.0  align=1  Clip=none
+            - Windows.UI.Xaml.Controls.Grid  name=''  size=20.7x16.0  align=3  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='RunningIndicator'  size=6.0x3.3  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=24.0x24.0  align=1  Clip=none
+      - Taskbar.TaskListButton  name='TaskListButton'  size=44.0x48.0  align=2  Clip=none
+        - Taskbar.TaskListLabeledButtonPanel  name='IconPanel'  size=44.0x48.0  align=2  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name=''  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Border  name='BackgroundElement'  size=40.0x40.0  align=3  Clip=none
+          - Windows.UI.Xaml.Controls.Image  name='Icon'  size=24.0x24.0  align=3  Clip=none
+          - Windows.UI.Xaml.Shapes.Rectangle  name='DefaultIcon'  size=24.0x24.0  align=1  Clip=none
+    - Taskbar.Gripper  name='GripperControl'  size=120.0x24.0  align=0  Clip=none
+      - Windows.UI.Xaml.Shapes.Rectangle  name='Gripper'  size=120.0x3.3  align=1  Clip=none
+    - Windows.UI.Xaml.Shapes.Rectangle  name='ScreenEdgeStroke'  size=2293.3x2.0  align=2  Clip=none
+
+=== end ===
