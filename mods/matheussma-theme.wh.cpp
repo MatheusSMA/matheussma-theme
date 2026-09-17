@@ -675,23 +675,23 @@ const Theme g_themeFrostyGlass = {{
 
     // --- the visible bar itself ---
 
+    // Width=Auto and Center go here, not on the background element below.
+    // TaskbarBackground contains only Rectangles, which have no intrinsic width,
+    // so asking it to size to its content collapses it to zero and nothing is
+    // painted at all. RootGrid hugs the icons and the background stretches inside
+    // it - which is how LiquidGlass2 does it, and that theme renders correctly.
     ThemeTargetStyles{L"Taskbar.TaskbarFrame > Grid#RootGrid", {
         L"Background:=Transparent",
         L"BorderThickness=0",
         L"Margin=0",
         L"Padding=0",
+        L"Width=Auto",
+        L"HorizontalAlignment=Center",
         L"VerticalAlignment=Stretch"}},
 
-    // Width as well as height: TaskbarBackground is the background of the whole
-    // taskbar in stock Windows, so it starts out stretched edge to edge. The
-    // theme painted RootGrid instead, which follows TaskbarFrame's Width=Auto and
-    // hugs the icons. Moving the paint down here gained the height and lost that,
-    // so it is asked for explicitly.
     ThemeTargetStyles{L"Taskbar.TaskbarBackground#BackgroundControl", {
         L"Height=48",
         L"VerticalAlignment=Bottom",
-        L"Width=Auto",
-        L"HorizontalAlignment=Center",
         L"Margin=0,0,0,4",
         L"Padding=2,0,1.5,0"}},
 
