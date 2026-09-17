@@ -51,17 +51,17 @@ once: the window is made taller, and the visible content is pinned back to a
 short strip at its bottom so the buttons do not grow along with it. Neither half
 works alone, and neither upstream mod can do both.
 
-**No silent animation loss.** The animation expects a `TransformGroup` with
-exactly four children on each element it animates and quietly gives up on
-anything else, so a style rule setting `RenderTransform` on a taskbar button
-would stop that icon animating with no error anywhere. Here the styling engine
-refuses to write `RenderTransform` to an element the animation owns, and logs
-when it skips one.
+## Not done yet
 
-**No per-frame layout polling.** Separately, the animation had no way to learn
-that the styler changed the layout, so it hashed the icon host's children on
-every rendered frame to detect it. Here the styling engine reports the change
-directly and the animation re-measures on the next frame.
+**Silent animation loss.** The animation expects a `TransformGroup` with exactly
+four children on each element it animates and quietly gives up on anything else,
+so a style rule setting `RenderTransform` on a taskbar button stops that icon
+animating with no error anywhere. Being one mod makes a guard possible; it is not
+written yet.
+
+**Per-frame layout polling.** The animation still hashes the icon host's children
+on every rendered frame to notice that the styling changed the layout, instead of
+being told directly.
 
 ## Installing
 

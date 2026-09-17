@@ -19,21 +19,19 @@ XAML elements: the styler sets geometry (`Width`, `Height`, `Margin`, `Padding`)
 and may set `RenderTransform`, while the animation owns `RenderTransform` on the
 icons it scales and reads their geometry every frame.
 
-Two problems follow from that, and both are fixed by having one mod own both
-sides:
+The reason the merge exists is the clipping fix below, which needs a symbol hook
+and style rules acting together — neither upstream mod can do both. Two further
+problems come from the same lack of coordination and are **not fixed yet**:
 
 **Silent animation loss.** The animation expects a `TransformGroup` with exactly
 four children on every element it animates, and bails out quietly when it finds
 anything else. A style rule that sets `RenderTransform` on a taskbar button
-replaces that group, and the icon stops animating with no error anywhere. Here,
-the styling engine refuses to write `RenderTransform` to an element the animation
-owns, and logs when it skips one.
+replaces that group, and the icon stops animating with no error anywhere.
 
 **Per-frame layout polling.** Separately, the animation has no way to learn that
 the styler changed the layout, so it hashes the icon host's children on every
 rendered frame to detect it. In a single mod the styling engine already knows
-when it mutated the visual tree, so it marks the geometry dirty and the animation
-re-measures on the next frame. The per-frame hash is gone.
+when it mutated the visual tree and could say so directly.
 
 ## Differences from upstream
 
@@ -98,9 +96,10 @@ engine without the noise of theme changes that do not apply here.
 
 ## Known issues
 
-Inherited from the upstream animation: icons can be clipped by the taskbar at
-high scale values. Upstream recommends keeping `MaxScale` at or below 130; this
-mod ships 180, so clipping is expected until it is fixed here.
+The taskbar window is taller than the visible bar, so it reserves that screen
+space: maximized windows stop below the top of the window, not the top of the
+bar. `clickThroughTaskbar` is on by default so the invisible strip does not
+swallow clicks and hover.
 
 ## License
 
