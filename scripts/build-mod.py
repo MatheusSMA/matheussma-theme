@@ -29,7 +29,14 @@ DOCK = UPSTREAM / "taskbar-dock-animation@1.9.2.wh.cpp"
 # The themes to include. The rest stay in upstream/ and are pulled in with
 # scripts/add-theme.py. Each one carries ~200-400 lines, and the ones nobody
 # selects are the bulk of the upstream file.
-THEMES = ["FrostyGlass", "LiquidGlass2"]
+THEMES = ["FrostyGlass", "LiquidGlass2", "Hybrid"]
+
+# Themes built by mixing two upstream ones instead of being copied from a single
+# block. `base` supplies everything except the system tray; `tray` supplies the
+# tray and the style constants, because tray rules refer to them.
+COMPOSED = {
+    "Hybrid": {"base": "LiquidGlass2", "tray": "FrostyGlass"},
+}
 
 
 class BuildError(Exception):
@@ -91,6 +98,63 @@ def styler_theme_structs(lines):
         "};",
         what="Theme struct",
     )
+
+
+def theme_rules(lines, name):
+    """One theme's ThemeTargetStyles entries, as a list of blocks.
+
+    A block is one entry, which spans several lines. They are grouped rather than
+    handled line by line so that rules can be filtered whole.
+    """
+    start = find_line(lines, f"const Theme g_theme{name} = {{{{", what=f"theme {name}")
+    end = find_line(lines, "}};", start=start, what=f"end of theme {name}")
+
+    blocks, current = [], []
+    for line in lines[start + 1 : end]:
+        if line == "}, {":
+            break
+        if line.startswith("    ThemeTargetStyles{") and current:
+            blocks.append(current)
+            current = []
+        current.append(line)
+    if current:
+        blocks.append(current)
+    return blocks
+
+
+def theme_constants(lines, name):
+    """The `}, {` ... `}};` tail holding a theme's $constants, or an empty one for
+    themes that define none."""
+    start = find_line(lines, f"const Theme g_theme{name} = {{{{", what=f"theme {name}")
+    end = find_line(lines, "}};", start=start, what=f"end of theme {name}")
+
+    for i in range(start, end):
+        if lines[i] == "}, {":
+            return lines[i + 1 : end]
+    return []
+
+
+def compose_theme(lines, name, spec, adaptation):
+    """Build a theme that does not exist upstream, out of two that do."""
+    base, tray = spec["base"], spec["tray"]
+
+    kept = [b for b in theme_rules(lines, base) if "SystemTray" not in b[0]]
+    borrowed = [b for b in theme_rules(lines, tray) if "SystemTray" in b[0]]
+    if not borrowed:
+        raise BuildError(f"{tray} has no SystemTray rules to lend to {name}")
+
+    out = [f"const Theme g_theme{name} = {{{{"]
+    out += [f"    // Everything but the system tray, from {base}."]
+    for block in kept:
+        out += block
+    out += ["", f"    // The system tray, from {tray}."]
+    for block in borrowed:
+        out += block
+    out += adaptation
+    out += ["}, {", f"    // Constants from {tray}, which its tray rules refer to."]
+    out += theme_constants(lines, tray)
+    out += ["}};"]
+    return out
 
 
 def theme_adaptation(generic, name):
@@ -413,7 +477,11 @@ def main():
         out += styler_theme_structs(styler)
         out += ["", "// clang-format off", ""]
         for name in THEMES:
-            out += styler_theme(styler, name, theme_adaptation(adaptation, name))
+            rules = theme_adaptation(adaptation, name)
+            if name in COMPOSED:
+                out += compose_theme(styler, name, COMPOSED[name], rules)
+            else:
+                out += styler_theme(styler, name, rules)
             out += [""]
         out += ["// clang-format on", ""]
 
