@@ -91,7 +91,7 @@ the top of the visible bar.
     step when tracking down a conflict between the styling and the animation.
   $options:
   - "": None
-  - FrostyGlass: FrostyGlass
+// @@THEME_OPTIONS@@
 
 - frameHeight: 96
   $name: Clipping - taskbar window height (DIP)

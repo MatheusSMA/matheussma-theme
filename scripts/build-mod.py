@@ -26,9 +26,10 @@ OUT = ROOT / "mods" / "matheussma-theme.wh.cpp"
 STYLER = UPSTREAM / "windows-11-taskbar-styler@1.10.wh.cpp"
 DOCK = UPSTREAM / "taskbar-dock-animation@1.9.2.wh.cpp"
 
-# The theme to keep. The other 48 stay in upstream/ and can be pulled in with
-# scripts/add-theme.py.
-THEME = "FrostyGlass"
+# The themes to include. The rest stay in upstream/ and are pulled in with
+# scripts/add-theme.py. Each one carries ~200-400 lines, and the ones nobody
+# selects are the bulk of the upstream file.
+THEMES = ["FrostyGlass", "LiquidGlass2"]
 
 
 class BuildError(Exception):
@@ -92,14 +93,24 @@ def styler_theme_structs(lines):
     )
 
 
-def styler_theme(lines, name, adaptation):
-    """The one theme definition we keep, with the dock adaptation rules appended
-    to its target styles.
+def theme_adaptation(generic, name):
+    """The rules appended to one theme: the generic pinning, plus that theme's
+    repaint file if it has one.
 
-    A theme is `{{ <target styles> }, { <constants> }}`. The adaptation goes at
-    the end of the first list, so it is applied after the theme's own rules and
-    overrides them, while the theme text itself stays a verbatim copy of upstream
-    for diffing against future versions.
+    The repaint is per-theme because it refers to the theme's own $constants, and
+    not every theme defines them.
+    """
+    specific = PARTS / f"repaint-{name}.cpp"
+    return generic + (read(specific) if specific.exists() else [])
+
+
+def styler_theme(lines, name, adaptation):
+    """One theme definition, with the dock adaptation rules appended to its
+    target styles.
+
+    The adaptation goes at the end of that list, so it is applied after the
+    theme's own rules and overrides them, while the theme text itself stays a
+    verbatim copy of upstream for diffing against future versions.
     """
     start = find_line(lines, f"const Theme g_theme{name} = {{{{", what=f"theme {name}")
 
@@ -113,15 +124,14 @@ def styler_theme(lines, name, adaptation):
 
     block = lines[start : end + 1]
 
-    # The line that closes the target styles and opens the constants.
-    split_at = None
+    # A theme is `{{ <target styles> }, { <constants> }}`, except that the
+    # constants section is optional - LiquidGlass2 uses literal values and has
+    # none, so its block runs straight from the styles to `}};`. The adaptation
+    # goes at the end of the target styles either way.
+    split_at = len(block) - 1
     for i, line in enumerate(block):
         if line == "}, {":
             split_at = i
-    if split_at is None:
-        raise BuildError(
-            f"theme {name} has no constants section; expected a '}}, {{' line"
-        )
 
     return block[:split_at] + adaptation + block[split_at:]
 
@@ -182,11 +192,23 @@ def styler_entry_points(lines):
     return out
 
 
-def patch_theme_lookup(engine, theme):
+def theme_options(themes):
+    """The dropdown entries for the settings, generated from the theme list so
+    the list and the dropdown cannot drift apart."""
+    return [f"  - {name}: {name}" for name in themes]
+
+
+def splice_theme_options(header, themes):
+    marker = "// @@THEME_OPTIONS@@"
+    a = find_line(header, marker, what="theme options placeholder")
+    return header[:a] + theme_options(themes) + header[a + 1 :]
+
+
+def patch_theme_lookup(engine, themes):
     """Replace the 49-branch if/else that maps a theme name to its object.
 
-    Only one theme ships, so the chain collapses to a single comparison. Leaving
-    the full chain would reference 48 objects that are not in the file.
+    Only the included themes ship, so the chain is rebuilt for those. Leaving the
+    full chain would reference objects that are not in the file.
     """
     first = '    if (wcscmp(themeName, L"TranslucentTaskbar") == 0) {'
     a = find_line(engine, first, what="theme lookup chain")
@@ -194,11 +216,12 @@ def patch_theme_lookup(engine, theme):
     end_anchor = "    Wh_FreeStringSetting(themeName);"
     b = find_line(engine, end_anchor, start=a, what="end of theme lookup chain")
 
-    replacement = [
-        f'    if (wcscmp(themeName, L"{theme}") == 0) {{',
-        f"        theme = &g_theme{theme};",
-        "    }",
-    ]
+    replacement = []
+    for i, name in enumerate(themes):
+        keyword = "if" if i == 0 else "} else if"
+        replacement.append(f'    {keyword} (wcscmp(themeName, L"{name}") == 0) {{')
+        replacement.append(f"        theme = &g_theme{name};")
+    replacement.append("    }")
     return engine[:a] + replacement + engine[b:]
 
 
@@ -376,9 +399,10 @@ def main():
         adaptation = read(PARTS / "dock-adaptation.cpp")
 
         header = splice_dock_settings(header, dock_settings(dock))
+        header = splice_theme_options(header, THEMES)
 
         engine = styler_engine(styler)
-        engine = patch_theme_lookup(engine, THEME)
+        engine = patch_theme_lookup(engine, THEMES)
         engine = patch_shared_library_hook(engine)
 
         out = []
@@ -388,8 +412,10 @@ def main():
         out += section("Theme data, from the Windows 11 Taskbar Styler by m417z")
         out += styler_theme_structs(styler)
         out += ["", "// clang-format off", ""]
-        out += styler_theme(styler, THEME, adaptation)
-        out += ["", "// clang-format on", ""]
+        for name in THEMES:
+            out += styler_theme(styler, name, theme_adaptation(adaptation, name))
+            out += [""]
+        out += ["// clang-format on", ""]
 
         out += section(
             "Styling engine, from the Windows 11 Taskbar Styler by m417z (GPLv3)"
